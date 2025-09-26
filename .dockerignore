@@ -10,4 +10,3 @@ public/build
 .env
 *.sqlite
 *.log
-*.lock
