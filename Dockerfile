@@ -3,7 +3,7 @@
 FROM composer:2.7 AS composer
 WORKDIR /var/www/html
 
-COPY composer.json composer.lock ./
+COPY composer.json composer.lock artisan ./
 RUN composer install \
     --no-interaction \
     --no-progress \
