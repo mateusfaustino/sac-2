@@ -1,70 +1,42 @@
-# syntax=docker/dockerfile:1.4
+FROM php:8.3-fpm
 
-FROM composer:2.7 AS composer
-WORKDIR /var/www/html
+# set your user name, ex: user=carlos
+ARG user=yourusername
+ARG uid=1000
 
-COPY composer.json composer.lock ./
-RUN composer install \
-    --no-interaction \
-    --no-progress \
-    --prefer-dist
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip
 
-COPY . ./
-RUN composer install \
-    --no-interaction \
-    --no-progress \
-    --prefer-dist
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
 
-FROM node:20-alpine AS assets
-WORKDIR /app
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY package.json package-lock.json ./
-RUN npm ci
+# Create system user to run Composer and Artisan Commands
+RUN useradd -G www-data,root -u $uid -d /home/$user $user
+RUN mkdir -p /home/$user/.composer && \
+    chown -R $user:$user /home/$user
 
-COPY resources ./resources
-COPY vite.config.js tailwind.config.js postcss.config.js ./
-RUN npm run build
+# Install redis
+RUN pecl install -o -f redis \
+    &&  rm -rf /tmp/pear \
+    &&  docker-php-ext-enable redis
 
+# Set working directory
+WORKDIR /var/www
 
-FROM php:8.2-apache AS app
+# Copy custom configurations PHP
+COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-
-RUN apt-get update \
-    && apt-get install -y \
-        git \
-        unzip \
-        libzip-dev \
-        libpng-dev \
-        libjpeg62-turbo-dev \
-        libfreetype6-dev \
-        libicu-dev \
-        libonig-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-        bcmath \
-        intl \
-        gd \
-        opcache \
-        pdo_mysql \
-        zip \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && a2enmod rewrite \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=composer /var/www/html /var/www/html
-COPY --from=assets /app/public/build /var/www/html/public/build
-
-RUN sed -ri \
-        -e 's!/var/www/html!/var/www/html/public!g' \
-        /etc/apache2/sites-available/000-default.conf \
-        /etc/apache2/sites-available/default-ssl.conf \
-        /etc/apache2/apache2.conf \
-    && chown -R www-data:www-data storage bootstrap/cache
-
-EXPOSE 80
-
-CMD ["apache2-foreground"]
+USER $user
