@@ -1,6 +1,8 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 import LoadingSpinner from '@/Components/LoadingSpinner';
+import Tooltip from '@/Components/Tooltip';
+import { getProductTerm, getClientTerm, getUserFriendlyTicketTerm, getUserFriendlyStatus, getStatusDescription, getTermTooltip } from '@/Utils/userFriendlyTerms';
 
 export default function AdminProductShow({ auth, product, ticketItems }) {
     const getStatusBadgeClass = (status) => {
@@ -21,23 +23,11 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
                 return 'bg-teal-100 text-teal-800';
             case 'concluido':
                 return 'bg-gray-100 text-gray-800';
+            case 'cancelado':
+                return 'bg-gray-100 text-gray-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
-    };
-
-    const getStatusText = (status) => {
-        const statusMap = {
-            'aberto': 'Aberto',
-            'em_analise': 'Em Análise',
-            'aprovado': 'Aprovado',
-            'reprovado': 'Reprovado',
-            'aguardando_envio': 'Aguardando Envio',
-            'em_transito': 'Em Trânsito',
-            'recebido': 'Recebido',
-            'concluido': 'Concluído'
-        };
-        return statusMap[status] || status;
     };
 
     const getStatusTextProduct = (ativo) => {
@@ -55,6 +45,8 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
         { label: 'Produtos', href: route('admin.products.index') },
         { label: product.descricao, href: route('admin.products.show', product.id) }
     ];
+
+    const ticketTerm = getUserFriendlyTicketTerm('admin');
 
     return (
         <AdminLayout
@@ -81,14 +73,22 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">Código</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content="Código único do produto" position="right">
+                                                <span>{getProductTerm('codigo')}:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {product.codigo}
                                         </div>
                                     </div>
                                     
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">Descrição</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content="Descrição ou nome do produto" position="right">
+                                                <span>{getProductTerm('descricao')}:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {product.descricao}
                                         </div>
@@ -97,7 +97,7 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
                                 
                                 <div>
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">Status</label>
+                                        <label className="block text-sm font-medium text-gray-700">Status:</label>
                                         <div className="mt-1">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClassProduct(product.ativo)}`}>
                                                 {getStatusTextProduct(product.ativo)}
@@ -106,7 +106,11 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
                                     </div>
                                     
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">Quantidade de Tickets</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content="Quantidade de solicitações com este produto" position="right">
+                                                <span>Quantidade de {ticketTerm}s:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {product.ticket_items_count}
                                         </div>
@@ -118,17 +122,33 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-                            <h3 className="text-lg font-medium mb-6">Tickets com este Produto</h3>
+                            <h3 className="text-lg font-medium mb-6">{ticketTerm}s com este Produto</h3>
                             
                             {/* Tickets Table */}
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={`Número da ${ticketTerm.toLowerCase()}`} position="top">
+                                                    <span>{ticketTerm}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={getTermTooltip('razao_social')} position="top">
+                                                    <span>{getClientTerm('razao_social')}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content="Quantidade do produto na solicitação" position="top">
+                                                    <span>{getProductTerm('quantidade')}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={getTermTooltip('status')} position="top">
+                                                    <span>Status</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
@@ -147,9 +167,14 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
                                                         {item.quantidade}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(item.ticket.status)}`}>
-                                                            {getStatusText(item.ticket.status)}
-                                                        </span>
+                                                        <Tooltip 
+                                                            content={getStatusDescription(item.ticket.status)}
+                                                            position="top"
+                                                        >
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(item.ticket.status)}`}>
+                                                                {getUserFriendlyStatus(item.ticket.status)}
+                                                            </span>
+                                                        </Tooltip>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {new Date(item.ticket.created_at).toLocaleDateString('pt-BR')}
@@ -167,7 +192,7 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
                                         ) : (
                                             <tr>
                                                 <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                    Nenhum ticket encontrado com este produto
+                                                    Nenhum {ticketTerm.toLowerCase()} encontrado com este produto
                                                 </td>
                                             </tr>
                                         )}

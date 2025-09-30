@@ -1,13 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import Tooltip from '@/Components/Tooltip';
+import { getUserFriendlyTicketTerm, getUserFriendlyStatus, getStatusDescription, getBusinessTerm, getTermTooltip } from '@/Utils/userFriendlyTerms';
 
 export default function ClientTicketShow({ auth, ticket }) {
+    const ticketTerm = getUserFriendlyTicketTerm('client');
+
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Detalhes do Ticket</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Detalhes da {ticketTerm}</h2>}
         >
-            <Head title="Detalhes do Ticket" />
+            <Head title={`Detalhes da ${ticketTerm}`} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -18,44 +22,69 @@ export default function ClientTicketShow({ auth, ticket }) {
                                     href={route('client.tickets.index')}
                                     className="text-blue-600 hover:text-blue-900"
                                 >
-                                    ← Voltar para Tickets
+                                    ← Voltar para {ticketTerm}s
                                 </Link>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
-                                    <h3 className="text-lg font-medium mb-4">Informações do Ticket</h3>
+                                    <h3 className="text-lg font-medium mb-4">Informações da {ticketTerm}</h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <label className="font-medium">Número do Ticket:</label>
+                                            <label className="font-medium">
+                                                <Tooltip content="Número da solicitação" position="right">
+                                                    <span>{ticketTerm}:</span>
+                                                </Tooltip>
+                                            </label>
                                             <p className="ml-2 inline">{ticket.ticket_number}</p>
                                         </div>
                                         <div>
-                                            <label className="font-medium">Status:</label>
-                                            <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                ${ticket.status === 'aberto' ? 'bg-yellow-100 text-yellow-800' : ''}
-                                                ${ticket.status === 'em_analise' ? 'bg-blue-100 text-blue-800' : ''}
-                                                ${ticket.status === 'aprovado' ? 'bg-green-100 text-green-800' : ''}
-                                                ${ticket.status === 'reprovado' ? 'bg-red-100 text-red-800' : ''}
-                                                ${ticket.status === 'aguardando_envio' ? 'bg-purple-100 text-purple-800' : ''}
-                                                ${ticket.status === 'em_transito' ? 'bg-indigo-100 text-indigo-800' : ''}
-                                                ${ticket.status === 'recebido' ? 'bg-teal-100 text-teal-800' : ''}
-                                                ${ticket.status === 'concluido' ? 'bg-green-100 text-green-800' : ''}
-                                                ${ticket.status === 'cancelado' ? 'bg-gray-100 text-gray-800' : ''}
-                                            `}>
-                                                {ticket.status.replace('_', ' ')}
-                                            </span>
+                                            <label className="font-medium">
+                                                <Tooltip content={getTermTooltip('status')} position="right">
+                                                    <span>Status:</span>
+                                                </Tooltip>
+                                            </label>
+                                            <Tooltip 
+                                                content={getStatusDescription(ticket.status)}
+                                                position="right"
+                                            >
+                                                <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    ${ticket.status === 'aberto' ? 'bg-yellow-100 text-yellow-800' : ''}
+                                                    ${ticket.status === 'em_analise' ? 'bg-blue-100 text-blue-800' : ''}
+                                                    ${ticket.status === 'aprovado' ? 'bg-green-100 text-green-800' : ''}
+                                                    ${ticket.status === 'reprovado' ? 'bg-red-100 text-red-800' : ''}
+                                                    ${ticket.status === 'aguardando_envio' ? 'bg-purple-100 text-purple-800' : ''}
+                                                    ${ticket.status === 'em_transito' ? 'bg-indigo-100 text-indigo-800' : ''}
+                                                    ${ticket.status === 'recebido' ? 'bg-teal-100 text-teal-800' : ''}
+                                                    ${ticket.status === 'concluido' ? 'bg-green-100 text-green-800' : ''}
+                                                    ${ticket.status === 'cancelado' ? 'bg-gray-100 text-gray-800' : ''}
+                                                `}>
+                                                    {getUserFriendlyStatus(ticket.status)}
+                                                </span>
+                                            </Tooltip>
                                         </div>
                                         <div>
-                                            <label className="font-medium">Número do Contrato:</label>
+                                            <label className="font-medium">
+                                                <Tooltip content={getTermTooltip('numero_contrato')} position="right">
+                                                    <span>{getBusinessTerm('numero_contrato')}:</span>
+                                                </Tooltip>
+                                            </label>
                                             <p className="ml-2 inline">{ticket.numero_contrato}</p>
                                         </div>
                                         <div>
-                                            <label className="font-medium">Número da Nota Fiscal:</label>
+                                            <label className="font-medium">
+                                                <Tooltip content={getTermTooltip('numero_nf')} position="right">
+                                                    <span>{getBusinessTerm('numero_nf')}:</span>
+                                                </Tooltip>
+                                            </label>
                                             <p className="ml-2 inline">{ticket.numero_nf}</p>
                                         </div>
                                         <div>
-                                            <label className="font-medium">Número de Série:</label>
+                                            <label className="font-medium">
+                                                <Tooltip content={getTermTooltip('numero_serie')} position="right">
+                                                    <span>{getBusinessTerm('numero_serie')}:</span>
+                                                </Tooltip>
+                                            </label>
                                             <p className="ml-2 inline">{ticket.numero_serie || 'N/A'}</p>
                                         </div>
                                         <div>

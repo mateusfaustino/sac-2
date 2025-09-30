@@ -7,6 +7,8 @@ import { useStatusBar } from '@/Components/StatusBarProvider';
 import BackgroundJobService from '@/Services/BackgroundJobService';
 import FilterIndicator from '@/Components/FilterIndicator';
 import ExportProgressModal from '@/Components/ExportProgressModal';
+import Tooltip from '@/Components/Tooltip';
+import { getBusinessTerm, getTermTooltip, getClientTerm } from '@/Utils/userFriendlyTerms';
 
 export default function AdminClientsIndex({ auth, clients, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -236,7 +238,11 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                 <h3 className="text-lg font-medium mb-4">Filtros</h3>
                                 <form onSubmit={applyFilters} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Razão Social</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content={getTermTooltip('razao_social')} position="right">
+                                                <span>{getClientTerm('razao_social')}</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="razao_social"
@@ -248,7 +254,11 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content={getTermTooltip('cnpj')} position="right">
+                                                <span>{getClientTerm('cnpj')}</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="cnpj"
@@ -260,7 +270,11 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">E-mail de Notificação</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content={getTermTooltip('email_notificacao')} position="right">
+                                                <span>{getClientTerm('email_notificacao')}</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="email_notificacao"
@@ -272,16 +286,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                     </div>
 
                                     <div className="md:col-span-2 lg:col-span-3">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Busca Geral</label>
                                         <div className="flex space-x-2">
-                                            <input
-                                                type="text"
-                                                name="search"
-                                                value={searchFilters.search || ''}
-                                                onChange={handleFilterChange}
-                                                placeholder="Razão social, CNPJ ou e-mail"
-                                                className="border border-gray-300 rounded-md px-3 py-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            />
                                             <button
                                                 type="submit"
                                                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -365,11 +370,26 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CNPJ</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Razão Social</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail de Notificação</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade de Tickets</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Criação</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={getTermTooltip('razao_social')} position="top">
+                                                    <span>{getClientTerm('razao_social')}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={getTermTooltip('cnpj')} position="top">
+                                                    <span>{getClientTerm('cnpj')}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={getTermTooltip('email_notificacao')} position="top">
+                                                    <span>{getClientTerm('email_notificacao')}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content="Quantidade de solicitações criadas pelo cliente" position="top">
+                                                    <span>{getClientTerm('tickets_count')}</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
                                     </thead>
@@ -378,10 +398,10 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                             clients.data.map((client) => (
                                                 <tr key={client.id} className="hover:bg-gray-50">
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {client.cnpj}
+                                                        {client.razao_social}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {client.razao_social}
+                                                        {client.cnpj}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {client.email_notificacao || 'N/A'}
@@ -389,12 +409,9 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {client.tickets_count}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {new Date(client.created_at).toLocaleDateString('pt-BR')}
-                                                    </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <Link
-                                                            href={route('admin.clients.show', client.id)}
+                                                        <Link 
+                                                            href={route('admin.clients.show', client.id)} 
                                                             className="text-blue-600 hover:text-blue-900"
                                                         >
                                                             Visualizar
@@ -404,7 +421,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                                                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
                                                     Nenhum cliente encontrado
                                                 </td>
                                             </tr>

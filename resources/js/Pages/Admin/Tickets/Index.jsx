@@ -9,6 +9,8 @@ import FilterIndicator from '@/Components/FilterIndicator';
 import LoadingIndicator from '@/Components/LoadingIndicator';
 import usePagination from '@/Hooks/usePagination';
 import ExportProgressModal from '@/Components/ExportProgressModal';
+import Tooltip from '@/Components/Tooltip';
+import { getUserFriendlyTicketTerm, getUserFriendlyStatus, getStatusDescription } from '@/Utils/userFriendlyTerms';
 
 export default function AdminTicketsIndex({ auth, tickets, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -257,6 +259,8 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
 
     // Get current tickets data
     const currentTickets = data?.tickets || tickets;
+    
+    const ticketTerm = getUserFriendlyTicketTerm('admin');
 
     const handleExportDownload = () => {
         // The download is triggered automatically when the job completes
@@ -274,10 +278,10 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
     return (
         <AdminLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gerenciamento de Tickets</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gerenciamento de {ticketTerm}s</h2>}
             breadcrumbs={breadcrumbs}
         >
-            <Head title="Gerenciamento de Tickets" />
+            <Head title={`Gerenciamento de ${ticketTerm}s`} />
 
             {/* Export Progress Modal */}
             <ExportProgressModal
@@ -298,7 +302,11 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                 <h3 className="text-lg font-medium mb-4">Filtros</h3>
                                 <form onSubmit={applyFilters} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content="Filtrar por status da solicitação" position="right">
+                                                <span>Status</span>
+                                            </Tooltip>
+                                        </label>
                                         <select
                                             name="status"
                                             value={searchFilters.status}
@@ -318,7 +326,11 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content="Filtrar por nome do cliente" position="right">
+                                                <span>Cliente</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="client"
@@ -330,7 +342,11 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content="Filtrar por nome do produto" position="right">
+                                                <span>Produto</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="product"
@@ -399,7 +415,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
 
                             {/* Action Buttons */}
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg font-medium">Lista de Tickets</h3>
+                                <h3 className="text-lg font-medium">Lista de {ticketTerm}s</h3>
                                 <div className="flex space-x-2">
                                     <button
                                         onClick={exportToExcel}
@@ -464,10 +480,18 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={`Número da ${ticketTerm.toLowerCase()}`} position="top">
+                                                    <span>{ticketTerm}</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content="Situação atual da solicitação" position="top">
+                                                    <span>Status</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
@@ -488,9 +512,14 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                                             : 'N/A'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(ticket.status)}`}>
-                                                            {getStatusText(ticket.status)}
-                                                        </span>
+                                                        <Tooltip 
+                                                            content={getStatusDescription(ticket.status)}
+                                                            position="top"
+                                                        >
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(ticket.status)}`}>
+                                                                {getUserFriendlyStatus(ticket.status)}
+                                                            </span>
+                                                        </Tooltip>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {new Date(ticket.created_at).toLocaleDateString('pt-BR')}
@@ -508,7 +537,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                         ) : !loading ? (
                                             <tr>
                                                 <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                    Nenhum ticket encontrado
+                                                    Nenhum {ticketTerm.toLowerCase()} encontrado
                                                 </td>
                                             </tr>
                                         ) : null}

@@ -4,6 +4,8 @@ import LoadingSpinner from '@/Components/LoadingSpinner';
 import { useToast } from '@/Components/ToastProvider';
 import useFormValidation from '@/Hooks/useFormValidation';
 import ValidationFeedback from '@/Components/ValidationFeedback';
+import Tooltip from '@/Components/Tooltip';
+import { getProductTerm } from '@/Utils/userFriendlyTerms';
 
 export default function AdminProductCreate({ auth }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -94,7 +96,9 @@ export default function AdminProductCreate({ auth }) {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Código <span className="text-red-500">*</span>
+                                        <Tooltip content="Código único do produto" position="right">
+                                            <span>{getProductTerm('codigo')} <span className="text-red-500">*</span></span>
+                                        </Tooltip>
                                     </label>
                                     <input
                                         type="text"
@@ -123,7 +127,9 @@ export default function AdminProductCreate({ auth }) {
                                 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Descrição <span className="text-red-500">*</span>
+                                        <Tooltip content="Descrição ou nome do produto" position="right">
+                                            <span>{getProductTerm('descricao')} <span className="text-red-500">*</span></span>
+                                        </Tooltip>
                                     </label>
                                     <input
                                         type="text"

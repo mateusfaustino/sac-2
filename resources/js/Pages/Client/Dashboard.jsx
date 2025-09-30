@@ -1,10 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
+import Tooltip from '@/Components/Tooltip';
+import { getUserFriendlyTicketTerm } from '@/Utils/userFriendlyTerms';
 
 export default function ClientDashboard({ auth }) {
     const { props } = usePage();
     const { flash } = props;
     
+    const ticketTerm = getUserFriendlyTicketTerm('client');
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -53,7 +57,11 @@ export default function ClientDashboard({ auth }) {
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="bg-blue-50 p-6 rounded-lg">
-                                    <h3 className="text-lg font-medium text-blue-800">Criar Novo Ticket</h3>
+                                    <h3 className="text-lg font-medium text-blue-800">
+                                        <Tooltip content={`Criar uma nova ${ticketTerm.toLowerCase()}`} position="top">
+                                            <span>Criar Nova {ticketTerm}</span>
+                                        </Tooltip>
+                                    </h3>
                                     <p className="mt-2 text-blue-600">
                                         Envie uma nova solicitação de devolução para seus produtos.
                                     </p>
@@ -61,12 +69,16 @@ export default function ClientDashboard({ auth }) {
                                         href={route('client.tickets.create')} 
                                         className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                                     >
-                                        Criar Ticket
+                                        Criar {ticketTerm}
                                     </a>
                                 </div>
 
                                 <div className="bg-green-50 p-6 rounded-lg">
-                                    <h3 className="text-lg font-medium text-green-800">Meus Tickets</h3>
+                                    <h3 className="text-lg font-medium text-green-800">
+                                        <Tooltip content={`Visualizar todas as suas ${ticketTerm.toLowerCase()}s`} position="top">
+                                            <span>Minhas {ticketTerm}s</span>
+                                        </Tooltip>
+                                    </h3>
                                     <p className="mt-2 text-green-600">
                                         Veja e acompanhe todas as suas solicitações de devolução.
                                     </p>
@@ -74,7 +86,7 @@ export default function ClientDashboard({ auth }) {
                                         href={route('client.tickets.index')} 
                                         className="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                                     >
-                                        Ver Tickets
+                                        Ver {ticketTerm}s
                                     </a>
                                 </div>
 

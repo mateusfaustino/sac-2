@@ -1,5 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
+import Tooltip from '@/Components/Tooltip';
+import { getUserFriendlyTicketTerm, getUserFriendlyStatus, getStatusDescription, getClientTerm, getTermTooltip } from '@/Utils/userFriendlyTerms';
 
 export default function AdminClientShow({ auth, client, tickets }) {
     const getStatusBadgeClass = (status) => {
@@ -20,23 +22,11 @@ export default function AdminClientShow({ auth, client, tickets }) {
                 return 'bg-teal-100 text-teal-800';
             case 'concluido':
                 return 'bg-gray-100 text-gray-800';
+            case 'cancelado':
+                return 'bg-gray-100 text-gray-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
-    };
-
-    const getStatusText = (status) => {
-        const statusMap = {
-            'aberto': 'Aberto',
-            'em_analise': 'Em Análise',
-            'aprovado': 'Aprovado',
-            'reprovado': 'Reprovado',
-            'aguardando_envio': 'Aguardando Envio',
-            'em_transito': 'Em Trânsito',
-            'recebido': 'Recebido',
-            'concluido': 'Concluído'
-        };
-        return statusMap[status] || status;
     };
 
     const breadcrumbs = [
@@ -44,6 +34,8 @@ export default function AdminClientShow({ auth, client, tickets }) {
         { label: 'Clientes', href: route('admin.clients.index') },
         { label: client.razao_social, href: route('admin.clients.show', client.id) }
     ];
+
+    const ticketTerm = getUserFriendlyTicketTerm('admin');
 
     return (
         <AdminLayout
@@ -70,14 +62,22 @@ export default function AdminClientShow({ auth, client, tickets }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">Razão Social</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content={getTermTooltip('razao_social')} position="right">
+                                                <span>{getClientTerm('razao_social')}:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {client.razao_social}
                                         </div>
                                     </div>
                                     
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">CNPJ</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content={getTermTooltip('cnpj')} position="right">
+                                                <span>{getClientTerm('cnpj')}:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {client.cnpj}
                                         </div>
@@ -86,14 +86,22 @@ export default function AdminClientShow({ auth, client, tickets }) {
                                 
                                 <div>
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">E-mail de Notificação</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content={getTermTooltip('email_notificacao')} position="right">
+                                                <span>{getClientTerm('email_notificacao')}:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {client.email_notificacao || 'N/A'}
                                         </div>
                                     </div>
                                     
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">Quantidade de Tickets</label>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            <Tooltip content="Quantidade de solicitações criadas pelo cliente" position="right">
+                                                <span>{getClientTerm('tickets_count')}:</span>
+                                            </Tooltip>
+                                        </label>
                                         <div className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             {client.tickets_count}
                                         </div>
@@ -112,9 +120,17 @@ export default function AdminClientShow({ auth, client, tickets }) {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={`Número da ${ticketTerm.toLowerCase()}`} position="top">
+                                                    <span>{ticketTerm}</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content={getTermTooltip('status')} position="top">
+                                                    <span>Status</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
@@ -132,9 +148,14 @@ export default function AdminClientShow({ auth, client, tickets }) {
                                                             : 'N/A'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(ticket.status)}`}>
-                                                            {getStatusText(ticket.status)}
-                                                        </span>
+                                                        <Tooltip 
+                                                            content={getStatusDescription(ticket.status)}
+                                                            position="top"
+                                                        >
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(ticket.status)}`}>
+                                                                {getUserFriendlyStatus(ticket.status)}
+                                                            </span>
+                                                        </Tooltip>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {new Date(ticket.created_at).toLocaleDateString('pt-BR')}

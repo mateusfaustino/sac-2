@@ -6,6 +6,8 @@ import useFormValidation from '@/Hooks/useFormValidation';
 import ValidationFeedback from '@/Components/ValidationFeedback';
 import FormProgressIndicator from '@/Components/FormProgressIndicator';
 import { useState } from 'react';
+import Tooltip from '@/Components/Tooltip';
+import { getProductTerm } from '@/Utils/userFriendlyTerms';
 
 export default function AdminProductCreateMultiStep({ auth }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -201,23 +203,28 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                         
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Código <span className="text-red-500">*</span>
+                                                <Tooltip content="Código único do produto" position="right">
+                                                    <span>{getProductTerm('codigo')} <span className="text-red-500">*</span></span>
+                                                </Tooltip>
                                             </label>
                                             <input
                                                 type="text"
                                                 value={data.codigo}
-                                                onChange={(e) => handleFieldChangeWithValidation('codigo', e.target.value)}
-                                                onBlur={() => currentValidation.handleBlur('codigo')}
-                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${currentValidation.getFieldValidationClass('codigo')}`}
+                                                onChange={(e) => {
+                                                    setData('codigo', e.target.value);
+                                                    validationStep1.handleFieldChange('codigo', e.target.value);
+                                                }}
+                                                onBlur={() => validationStep1.handleBlur('codigo')}
+                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${validationStep1.getFieldValidationClass('codigo')}`}
                                                 placeholder="Código do produto"
                                             />
-                                            {currentValidation.hasFieldError('codigo') && (
+                                            {validationStep1.hasFieldError('codigo') && (
                                                 <ValidationFeedback 
                                                     type="error" 
-                                                    message={currentValidation.errors.codigo} 
+                                                    message={validationStep1.errors.codigo} 
                                                 />
                                             )}
-                                            {!currentValidation.hasFieldError('codigo') && data.codigo && (
+                                            {!validationStep1.hasFieldError('codigo') && data.codigo && (
                                                 <ValidationFeedback 
                                                     type="success" 
                                                     message="Código válido" 
@@ -227,23 +234,28 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                         
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Descrição <span className="text-red-500">*</span>
+                                                <Tooltip content="Descrição ou nome do produto" position="right">
+                                                    <span>{getProductTerm('descricao')} <span className="text-red-500">*</span></span>
+                                                </Tooltip>
                                             </label>
                                             <input
                                                 type="text"
                                                 value={data.descricao}
-                                                onChange={(e) => handleFieldChangeWithValidation('descricao', e.target.value)}
-                                                onBlur={() => currentValidation.handleBlur('descricao')}
-                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${currentValidation.getFieldValidationClass('descricao')}`}
+                                                onChange={(e) => {
+                                                    setData('descricao', e.target.value);
+                                                    validationStep1.handleFieldChange('descricao', e.target.value);
+                                                }}
+                                                onBlur={() => validationStep1.handleBlur('descricao')}
+                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${validationStep1.getFieldValidationClass('descricao')}`}
                                                 placeholder="Descrição do produto"
                                             />
-                                            {currentValidation.hasFieldError('descricao') && (
+                                            {validationStep1.hasFieldError('descricao') && (
                                                 <ValidationFeedback 
                                                     type="error" 
-                                                    message={currentValidation.errors.descricao} 
+                                                    message={validationStep1.errors.descricao} 
                                                 />
                                             )}
-                                            {!currentValidation.hasFieldError('descricao') && data.descricao && (
+                                            {!validationStep1.hasFieldError('descricao') && data.descricao && (
                                                 <ValidationFeedback 
                                                     type="success" 
                                                     message="Descrição válida" 
@@ -272,28 +284,27 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Categoria <span className="text-red-500">*</span>
                                             </label>
-                                            <select
+                                            <input
+                                                type="text"
                                                 value={data.categoria}
-                                                onChange={(e) => handleFieldChangeWithValidation('categoria', e.target.value)}
-                                                onBlur={() => currentValidation.handleBlur('categoria')}
-                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${currentValidation.getFieldValidationClass('categoria')}`}
-                                            >
-                                                <option value="">Selecione uma categoria</option>
-                                                <option value="eletronicos">Eletrônicos</option>
-                                                <option value="moveis">Móveis</option>
-                                                <option value="vestuario">Vestuário</option>
-                                                <option value="alimentos">Alimentos</option>
-                                            </select>
-                                            {currentValidation.hasFieldError('categoria') && (
+                                                onChange={(e) => {
+                                                    setData('categoria', e.target.value);
+                                                    validationStep2.handleFieldChange('categoria', e.target.value);
+                                                }}
+                                                onBlur={() => validationStep2.handleBlur('categoria')}
+                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${validationStep2.getFieldValidationClass('categoria')}`}
+                                                placeholder="Categoria do produto"
+                                            />
+                                            {validationStep2.hasFieldError('categoria') && (
                                                 <ValidationFeedback 
                                                     type="error" 
-                                                    message={currentValidation.errors.categoria} 
+                                                    message={validationStep2.errors.categoria} 
                                                 />
                                             )}
-                                            {!currentValidation.hasFieldError('categoria') && data.categoria && (
+                                            {!validationStep2.hasFieldError('categoria') && data.categoria && (
                                                 <ValidationFeedback 
                                                     type="success" 
-                                                    message="Categoria selecionada" 
+                                                    message="Categoria válida" 
                                                 />
                                             )}
                                         </div>
@@ -306,18 +317,21 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                                 type="number"
                                                 step="0.01"
                                                 value={data.preco}
-                                                onChange={(e) => handleFieldChangeWithValidation('preco', e.target.value)}
-                                                onBlur={() => currentValidation.handleBlur('preco')}
-                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${currentValidation.getFieldValidationClass('preco')}`}
+                                                onChange={(e) => {
+                                                    setData('preco', e.target.value);
+                                                    validationStep2.handleFieldChange('preco', e.target.value);
+                                                }}
+                                                onBlur={() => validationStep2.handleBlur('preco')}
+                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${validationStep2.getFieldValidationClass('preco')}`}
                                                 placeholder="0.00"
                                             />
-                                            {currentValidation.hasFieldError('preco') && (
+                                            {validationStep2.hasFieldError('preco') && (
                                                 <ValidationFeedback 
                                                     type="error" 
-                                                    message={currentValidation.errors.preco} 
+                                                    message={validationStep2.errors.preco} 
                                                 />
                                             )}
-                                            {!currentValidation.hasFieldError('preco') && data.preco && (
+                                            {!validationStep2.hasFieldError('preco') && data.preco && (
                                                 <ValidationFeedback 
                                                     type="success" 
                                                     message="Preço válido" 
@@ -371,26 +385,26 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                             <input
                                                 type="text"
                                                 value={data.tags}
-                                                onChange={(e) => handleFieldChangeWithValidation('tags', e.target.value)}
-                                                onBlur={() => currentValidation.handleBlur('tags')}
-                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${currentValidation.getFieldValidationClass('tags')}`}
-                                                placeholder="Separe as tags por vírgula"
+                                                onChange={(e) => {
+                                                    setData('tags', e.target.value);
+                                                    validationStep3.handleFieldChange('tags', e.target.value);
+                                                }}
+                                                onBlur={() => validationStep3.handleBlur('tags')}
+                                                className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${validationStep3.getFieldValidationClass('tags')}`}
+                                                placeholder="Tags separadas por vírgula"
                                             />
-                                            {currentValidation.hasFieldError('tags') && (
+                                            {validationStep3.hasFieldError('tags') && (
                                                 <ValidationFeedback 
                                                     type="error" 
-                                                    message={currentValidation.errors.tags} 
+                                                    message={validationStep3.errors.tags} 
                                                 />
                                             )}
-                                            {!currentValidation.hasFieldError('tags') && data.tags && (
+                                            {!validationStep3.hasFieldError('tags') && data.tags && (
                                                 <ValidationFeedback 
                                                     type="success" 
                                                     message="Tags válidas" 
                                                 />
                                             )}
-                                            <div className="mt-1 text-sm text-gray-500">
-                                                Separe as tags por vírgula (máximo 100 caracteres)
-                                            </div>
                                         </div>
                                         
                                         <div>
@@ -401,7 +415,7 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                                 value={data.observacoes}
                                                 onChange={(e) => setData('observacoes', e.target.value)}
                                                 rows="4"
-                                                className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 placeholder="Observações adicionais sobre o produto"
                                             />
                                         </div>
@@ -417,7 +431,11 @@ export default function AdminProductCreateMultiStep({ auth }) {
                                             <button
                                                 type="submit"
                                                 disabled={processing}
-                                                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
+                                                className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center ${
+                                                    processing
+                                                        ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                                                        : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white'
+                                                }`}
                                             >
                                                 {processing ? (
                                                     <>

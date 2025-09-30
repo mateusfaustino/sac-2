@@ -7,6 +7,8 @@ import { useStatusBar } from '@/Components/StatusBarProvider';
 import BackgroundJobService from '@/Services/BackgroundJobService';
 import FilterIndicator from '@/Components/FilterIndicator';
 import ExportProgressModal from '@/Components/ExportProgressModal';
+import Tooltip from '@/Components/Tooltip';
+import { getProductTerm, getTermTooltip } from '@/Utils/userFriendlyTerms';
 
 export default function AdminProductsIndex({ auth, products, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -198,45 +200,19 @@ export default function AdminProductsIndex({ auth, products, filters }) {
     };
 
     const deleteProduct = (productId, productName) => {
-        if (confirm(`Tem certeza que deseja excluir o produto "${productName}"?`)) {
+        if (window.confirm(`Tem certeza que deseja excluir o produto "${productName}"?`)) {
             setDeletingProductId(productId);
             router.delete(route('admin.products.destroy', productId), {
                 onSuccess: () => {
+                    addToast('Produto excluído com sucesso!', 'success');
                     setDeletingProductId(null);
-                    addToast(
-                        `Produto "${productName}" excluído com sucesso!`, 
-                        'success',
-                        5000,
-                        () => {
-                            // Undo action - restore the product
-                            router.post(route('admin.products.restore', productId), {
-                                onSuccess: () => {
-                                    addToast('Produto restaurado com sucesso!', 'success');
-                                },
-                                onError: () => {
-                                    addToast('Erro ao restaurar o produto.', 'error');
-                                }
-                            });
-                        }
-                    );
                 },
-                onError: (errors) => {
+                onError: () => {
+                    addToast('Erro ao excluir produto.', 'error');
                     setDeletingProductId(null);
-                    addToast('Erro ao excluir o produto. Por favor, tente novamente.', 'error');
-                    console.error('Delete error:', errors);
                 }
             });
         }
-    };
-
-    const getStatusBadgeClass = (ativo) => {
-        return ativo 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800';
-    };
-
-    const getStatusText = (ativo) => {
-        return ativo ? 'Ativo' : 'Inativo';
     };
 
     const handleExportDownload = () => {
@@ -277,9 +253,13 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                             {/* Filter Section */}
                             <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                                 <h3 className="text-lg font-medium mb-4">Filtros</h3>
-                                <form onSubmit={applyFilters} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <form onSubmit={applyFilters} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content="Código único do produto" position="right">
+                                                <span>{getProductTerm('codigo')}</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="codigo"
@@ -291,7 +271,11 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <Tooltip content="Descrição ou nome do produto" position="right">
+                                                <span>{getProductTerm('descricao')}</span>
+                                            </Tooltip>
+                                        </label>
                                         <input
                                             type="text"
                                             name="descricao"
@@ -316,17 +300,8 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                         </select>
                                     </div>
 
-                                    <div className="md:col-span-2 lg:col-span-3">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Busca Geral</label>
+                                    <div className="md:col-span-2 lg:col-span-4">
                                         <div className="flex space-x-2">
-                                            <input
-                                                type="text"
-                                                name="search"
-                                                value={searchFilters.search || ''}
-                                                onChange={handleFilterChange}
-                                                placeholder="Código ou descrição do produto"
-                                                className="border border-gray-300 rounded-md px-3 py-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            />
                                             <button
                                                 type="submit"
                                                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -358,12 +333,9 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                 <div className="flex space-x-2">
                                     <Link
                                         href={route('admin.products.create')}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                     >
-                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        Adicionar Produto
+                                        Novo Produto
                                     </Link>
                                     <button
                                         onClick={exportToExcel}
@@ -419,11 +391,17 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content="Código único do produto" position="top">
+                                                    <span>{getProductTerm('codigo')}</span>
+                                                </Tooltip>
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <Tooltip content="Descrição ou nome do produto" position="top">
+                                                    <span>{getProductTerm('descricao')}</span>
+                                                </Tooltip>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade de Tickets</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Criação</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
                                     </thead>
@@ -438,58 +416,40 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                                         {product.descricao}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(product.ativo)}`}>
-                                                            {getStatusText(product.ativo)}
+                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                            product.status === 'ativo' 
+                                                                ? 'bg-green-100 text-green-800' 
+                                                                : 'bg-red-100 text-red-800'
+                                                        }`}>
+                                                            {product.status === 'ativo' ? 'Ativo' : 'Inativo'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {product.ticket_items_count}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {new Date(product.created_at).toLocaleDateString('pt-BR')}
-                                                    </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div className="flex space-x-2">
-                                                            <Link
-                                                                href={route('admin.products.show', product.id)}
-                                                                className="text-blue-600 hover:text-blue-900"
-                                                            >
-                                                                Visualizar
-                                                            </Link>
-                                                            <button
-                                                                onClick={() => deleteProduct(product.id, product.descricao)}
-                                                                disabled={product.ticket_items_count > 0 || deletingProductId === product.id}
-                                                                className={`${
-                                                                    product.ticket_items_count > 0 
-                                                                        ? 'text-gray-400 cursor-not-allowed' 
-                                                                        : deletingProductId === product.id
-                                                                            ? 'text-gray-500 cursor-not-allowed'
-                                                                            : 'text-red-600 hover:text-red-900'
-                                                                }`}
-                                                                title={
-                                                                    product.ticket_items_count > 0 
-                                                                        ? 'Não é possível excluir produtos com tickets associados' 
-                                                                        : deletingProductId === product.id
-                                                                            ? 'Excluindo...'
-                                                                            : 'Excluir produto'
-                                                                }
-                                                            >
-                                                                {deletingProductId === product.id ? (
-                                                                    <span className="inline-flex items-center">
-                                                                        <LoadingSpinner size="sm" className="mr-1" />
-                                                                        Excluindo...
-                                                                    </span>
-                                                                ) : (
-                                                                    'Excluir'
-                                                                )}
-                                                            </button>
-                                                        </div>
+                                                        <Link 
+                                                            href={route('admin.products.show', product.id)} 
+                                                            className="text-blue-600 hover:text-blue-900 mr-3"
+                                                        >
+                                                            Visualizar
+                                                        </Link>
+                                                        <Link 
+                                                            href={route('admin.products.edit', product.id)} 
+                                                            className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                                        >
+                                                            Editar
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => deleteProduct(product.id, product.descricao)}
+                                                            disabled={deletingProductId === product.id}
+                                                            className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                                                        >
+                                                            {deletingProductId === product.id ? 'Excluindo...' : 'Excluir'}
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                                                <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
                                                     Nenhum produto encontrado
                                                 </td>
                                             </tr>

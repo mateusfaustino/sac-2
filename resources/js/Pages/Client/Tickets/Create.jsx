@@ -6,6 +6,8 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import useFormValidation from '@/Hooks/useFormValidation';
 import ValidationFeedback from '@/Components/ValidationFeedback';
+import Tooltip from '@/Components/Tooltip';
+import { getBusinessTerm, getTermTooltip } from '@/Utils/userFriendlyTerms';
 
 export default function CreateTicket({ auth, products }) {
     const { props } = usePage();
@@ -77,12 +79,14 @@ export default function CreateTicket({ auth, products }) {
         }
     };
 
+    const ticketTerm = 'Solicitação de Devolução';
+
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Criar Novo Ticket</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Criar Nova {ticketTerm}</h2>}
         >
-            <Head title="Criar Novo Ticket" />
+            <Head title={`Criar Nova ${ticketTerm}`} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -93,7 +97,7 @@ export default function CreateTicket({ auth, products }) {
                                     href={route('client.tickets.index')}
                                     className="text-blue-600 hover:text-blue-900"
                                 >
-                                    ← Voltar para Tickets
+                                    ← Voltar para {ticketTerm}s
                                 </Link>
                             </div>
 
@@ -117,7 +121,11 @@ export default function CreateTicket({ auth, products }) {
 
                             <form onSubmit={submit} className="space-y-6">
                                 <div>
-                                    <InputLabel htmlFor="product_id" value="Produto *" />
+                                    <InputLabel htmlFor="product_id" value={
+                                        <Tooltip content="Selecione o produto que deseja devolver/trocar" position="right">
+                                            <span>Produto *</span>
+                                        </Tooltip>
+                                    } />
                                     <select
                                         id="product_id"
                                         name="product_id"
@@ -151,7 +159,11 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="quantidade" value="Quantidade *" />
+                                    <InputLabel htmlFor="quantidade" value={
+                                        <Tooltip content="Quantidade do produto a ser devolvido/trocado" position="right">
+                                            <span>Quantidade *</span>
+                                        </Tooltip>
+                                    } />
                                     <TextInput
                                         id="quantidade"
                                         type="number"
@@ -180,7 +192,11 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="numero_contrato" value="Número do Contrato *" />
+                                    <InputLabel htmlFor="numero_contrato" value={
+                                        <Tooltip content={getTermTooltip('numero_contrato')} position="right">
+                                            <span>{getBusinessTerm('numero_contrato')} *</span>
+                                        </Tooltip>
+                                    } />
                                     <TextInput
                                         id="numero_contrato"
                                         type="text"
@@ -209,7 +225,11 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="numero_nf" value="Número da Nota Fiscal *" />
+                                    <InputLabel htmlFor="numero_nf" value={
+                                        <Tooltip content={getTermTooltip('numero_nf')} position="right">
+                                            <span>{getBusinessTerm('numero_nf')} *</span>
+                                        </Tooltip>
+                                    } />
                                     <TextInput
                                         id="numero_nf"
                                         type="text"
@@ -238,7 +258,11 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="numero_serie" value="Número de Série (Opcional)" />
+                                    <InputLabel htmlFor="numero_serie" value={
+                                        <Tooltip content={getTermTooltip('numero_serie')} position="right">
+                                            <span>{getBusinessTerm('numero_serie')} (Opcional)</span>
+                                        </Tooltip>
+                                    } />
                                     <TextInput
                                         id="numero_serie"
                                         type="text"
@@ -267,7 +291,11 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="descricao" value="Descrição (Opcional)" />
+                                    <InputLabel htmlFor="descricao" value={
+                                        <Tooltip content="Informações adicionais sobre a solicitação" position="right">
+                                            <span>Descrição (Opcional)</span>
+                                        </Tooltip>
+                                    } />
                                     <textarea
                                         id="descricao"
                                         name="descricao"
@@ -280,7 +308,7 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                    <PrimaryButton disabled={processing || !isValid}>Criar Ticket</PrimaryButton>
+                                    <PrimaryButton disabled={processing || !isValid}>Criar {ticketTerm}</PrimaryButton>
                                 </div>
                             </form>
                         </div>
