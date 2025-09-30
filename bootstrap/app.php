@@ -16,7 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // Register custom middleware aliases
+        $middleware->alias([
+            'redirect-if-not-client' => \App\Http\Middleware\RedirectIfNotClient::class,
+            'redirect-if-not-admin' => \App\Http\Middleware\RedirectIfNotAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

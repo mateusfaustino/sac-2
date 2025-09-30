@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'client_id',
     ];
 
     /**
@@ -44,5 +46,65 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Check if the user is an admin.
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user is a client.
+     *
+     * @return bool
+     */
+    public function isClient()
+    {
+        return $this->role === 'client';
+    }
+
+    /**
+     * Get the client associated with the user.
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Get the tickets created by the user.
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    /**
+     * Get the ticket status histories changed by the user.
+     */
+    public function statusHistories()
+    {
+        return $this->hasMany(TicketStatusHistory::class, 'changed_by');
+    }
+
+    /**
+     * Get the ticket messages sent by the user.
+     */
+    public function messages()
+    {
+        return $this->hasMany(TicketMessage::class, 'sender_id');
+    }
+
+    /**
+     * Get the attachments uploaded by the user.
+     */
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'uploaded_by');
     }
 }
