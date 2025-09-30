@@ -6,6 +6,8 @@ import { useToast } from '@/Components/ToastProvider';
 import { useStatusBar } from '@/Components/StatusBarProvider';
 import BackgroundJobService from '@/Services/BackgroundJobService';
 import FilterIndicator from '@/Components/FilterIndicator';
+import LoadingIndicator from '@/Components/LoadingIndicator';
+import usePagination from '@/Hooks/usePagination';
 
 export default function AdminTicketsIndex({ auth, tickets, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -18,6 +20,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
     });
     const [isExportingExcel, setIsExportingExcel] = useState(false);
     const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const { data, loading, loadingPage, estimatedTime, goToPage, setData } = usePagination({ tickets });
     const { addToast } = useToast();
     const statusBar = useStatusBar();
 
@@ -25,11 +28,16 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
         // Initialize background job service
         BackgroundJobService.init(statusBar);
         
+        // Set initial data
+        if (tickets) {
+            setData({ tickets });
+        }
+        
         // Cleanup on unmount
         return () => {
             // Any cleanup if needed
         };
-    }, [statusBar]);
+    }, [tickets, statusBar]);
 
     const breadcrumbs = [
         { label: 'Painel', href: route('admin.dashboard') },
@@ -178,6 +186,17 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
         };
         return statusMap[status] || status;
     };
+
+    // Handle pagination click
+    const handlePaginationClick = (e, url) => {
+        e.preventDefault();
+        if (url && !loading) {
+            goToPage(url);
+        }
+    };
+
+    // Get current tickets data
+    const currentTickets = data?.tickets || tickets;
 
     return (
         <AdminLayout
@@ -348,6 +367,15 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                 </div>
                             </div>
 
+                            {/* Loading Indicator */}
+                            {loading && (
+                                <LoadingIndicator 
+                                    message="Carregando página..." 
+                                    showEstimatedTime={true}
+                                    estimatedTime={estimatedTime}
+                                />
+                            )}
+
                             {/* Tickets Table */}
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
@@ -362,8 +390,8 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {tickets.data && tickets.data.length > 0 ? (
-                                            tickets.data.map((ticket) => (
+                                        {!loading && currentTickets.data && currentTickets.data.length > 0 ? (
+                                            currentTickets.data.map((ticket) => (
                                                 <tr key={ticket.id} className="hover:bg-gray-50">
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                         {ticket.ticket_number}
@@ -394,36 +422,37 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                                     </td>
                                                 </tr>
                                             ))
-                                        ) : (
+                                        ) : !loading ? (
                                             <tr>
                                                 <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
                                                     Nenhum ticket encontrado
                                                 </td>
                                             </tr>
-                                        )}
+                                        ) : null}
                                     </tbody>
                                 </table>
                             </div>
 
                             {/* Pagination */}
-                            {tickets.data && tickets.data.length > 0 && (
+                            {!loading && currentTickets.data && currentTickets.data.length > 0 && (
                                 <div className="mt-6 flex items-center justify-between">
                                     <div className="text-sm text-gray-700">
-                                        Mostrando <span className="font-medium">{tickets.from}</span> a <span className="font-medium">{tickets.to}</span> de{' '}
-                                        <span className="font-medium">{tickets.total}</span> resultados
+                                        Mostrando <span className="font-medium">{currentTickets.from}</span> a <span className="font-medium">{currentTickets.to}</span> de{' '}
+                                        <span className="font-medium">{currentTickets.total}</span> resultados
                                     </div>
                                     <div className="flex space-x-2">
-                                        {tickets.links.map((link, index) => (
+                                        {currentTickets.links.map((link, index) => (
                                             <a
                                                 key={index}
                                                 href={link.url || '#'}
+                                                onClick={(e) => handlePaginationClick(e, link.url)}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                                 className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                                                     link.active
                                                         ? 'bg-blue-600 text-white'
                                                         : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                                } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                disabled={!link.url}
+                                                } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''} ${loadingPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                disabled={!link.url || loadingPage}
                                             />
                                         ))}
                                     </div>
