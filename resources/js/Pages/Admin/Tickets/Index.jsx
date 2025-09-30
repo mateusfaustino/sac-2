@@ -5,6 +5,7 @@ import LoadingSpinner from '@/Components/LoadingSpinner';
 import { useToast } from '@/Components/ToastProvider';
 import { useStatusBar } from '@/Components/StatusBarProvider';
 import BackgroundJobService from '@/Services/BackgroundJobService';
+import FilterIndicator from '@/Components/FilterIndicator';
 
 export default function AdminTicketsIndex({ auth, tickets, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -64,6 +65,19 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
             search: ''
         });
         window.location.href = route('admin.tickets.index');
+    };
+
+    const removeFilter = (filterKey) => {
+        const newFilters = { ...searchFilters, [filterKey]: '' };
+        setSearchFilters(newFilters);
+        
+        const url = new URL(route('admin.tickets.index'), window.location.origin);
+        Object.keys(newFilters).forEach(key => {
+            if (newFilters[key]) {
+                url.searchParams.append(key, newFilters[key]);
+            }
+        });
+        window.location.href = url.toString();
     };
 
     const exportToExcel = () => {
@@ -273,6 +287,13 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                     </div>
                                 </form>
                             </div>
+
+                            {/* Filter Indicator */}
+                            <FilterIndicator 
+                                filters={searchFilters}
+                                onClearAll={resetFilters}
+                                onRemoveFilter={removeFilter}
+                            />
 
                             {/* Action Buttons */}
                             <div className="flex justify-between items-center mb-6">

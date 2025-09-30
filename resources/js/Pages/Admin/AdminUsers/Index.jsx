@@ -2,6 +2,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import LoadingSpinner from '@/Components/LoadingSpinner';
+import FilterIndicator from '@/Components/FilterIndicator';
 
 export default function AdminUsersIndex({ auth, adminUsers, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -34,6 +35,19 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
             email: ''
         });
         window.location.href = route('admin.admin-users.index');
+    };
+
+    const removeFilter = (filterKey) => {
+        const newFilters = { ...searchFilters, [filterKey]: '' };
+        setSearchFilters(newFilters);
+        
+        const url = new URL(route('admin.admin-users.index'), window.location.origin);
+        Object.keys(newFilters).forEach(key => {
+            if (newFilters[key]) {
+                url.searchParams.append(key, newFilters[key]);
+            }
+        });
+        window.location.href = url.toString();
     };
 
     const breadcrumbs = [
@@ -109,6 +123,13 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
                                     </div>
                                 </form>
                             </div>
+
+                            {/* Filter Indicator */}
+                            <FilterIndicator 
+                                filters={searchFilters}
+                                onClearAll={resetFilters}
+                                onRemoveFilter={removeFilter}
+                            />
 
                             {/* Action Buttons */}
                             <div className="flex justify-between items-center mb-6">
