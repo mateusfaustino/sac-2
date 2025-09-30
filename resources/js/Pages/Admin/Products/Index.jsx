@@ -6,6 +6,7 @@ import { useToast } from '@/Components/ToastProvider';
 import { useStatusBar } from '@/Components/StatusBarProvider';
 import BackgroundJobService from '@/Services/BackgroundJobService';
 import FilterIndicator from '@/Components/FilterIndicator';
+import ExportProgressModal from '@/Components/ExportProgressModal';
 
 export default function AdminProductsIndex({ auth, products, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -16,6 +17,9 @@ export default function AdminProductsIndex({ auth, products, filters }) {
     const [isExportingExcel, setIsExportingExcel] = useState(false);
     const [isExportingPdf, setIsExportingPdf] = useState(false);
     const [deletingProductId, setDeletingProductId] = useState(null);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [currentExportJob, setCurrentExportJob] = useState(null);
+    const [exportType, setExportType] = useState('');
     const { addToast } = useToast();
     const statusBar = useStatusBar();
 
@@ -76,11 +80,39 @@ export default function AdminProductsIndex({ auth, products, filters }) {
     };
 
     const exportToExcel = () => {
-        setIsExportingExcel(true);
         const jobId = 'export-excel-' + Date.now();
+        setCurrentExportJob(jobId);
+        setExportType('Excel (Produtos)');
+        setShowExportModal(true);
+        setIsExportingExcel(true);
+        
+        // Register callbacks for this job
+        BackgroundJobService.registerJobCallbacks(jobId, {
+            onStart: () => {
+                // Start processing
+            },
+            onProgress: (job) => {
+                // Update progress if needed
+            },
+            onComplete: (job) => {
+                setShowExportModal(false);
+                setIsExportingExcel(false);
+                addToast('Exportação de produtos (Excel) concluída com sucesso!', 'success');
+            },
+            onError: (job) => {
+                setShowExportModal(false);
+                setIsExportingExcel(false);
+                addToast('Erro na exportação de produtos (Excel).', 'error');
+            },
+            onCancel: (job) => {
+                setShowExportModal(false);
+                setIsExportingExcel(false);
+                addToast('Exportação de produtos (Excel) cancelada.', 'warning');
+            }
+        });
         
         // Start monitoring the export job
-        BackgroundJobService.startExportJob(jobId, 'produtos (Excel)');
+        BackgroundJobService.startExportJob(jobId, 'produtos (Excel)', products.total);
         
         const url = new URL(route('admin.products.export', { format: 'excel' }), window.location.origin);
         Object.keys(searchFilters).forEach(key => {
@@ -88,7 +120,6 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                 url.searchParams.append(key, searchFilters[key]);
             }
         });
-        window.location.href = url.toString();
         
         // Simulate progress updates
         let progress = 0;
@@ -99,19 +130,48 @@ export default function AdminProductsIndex({ auth, products, filters }) {
             if (progress >= 100) {
                 clearInterval(interval);
                 setTimeout(() => {
-                    BackgroundJobService.completeJob(jobId, true, 'Exportação de produtos (Excel) concluída com sucesso!');
-                    setIsExportingExcel(false);
+                    BackgroundJobService.completeJob(jobId, true, 'Exportação de produtos (Excel) concluída com sucesso!', url.toString());
+                    // Trigger download
+                    window.location.href = url.toString();
                 }, 500);
             }
         }, 300);
     };
 
     const exportToPDF = () => {
-        setIsExportingPdf(true);
         const jobId = 'export-pdf-' + Date.now();
+        setCurrentExportJob(jobId);
+        setExportType('PDF (Produtos)');
+        setShowExportModal(true);
+        setIsExportingPdf(true);
+        
+        // Register callbacks for this job
+        BackgroundJobService.registerJobCallbacks(jobId, {
+            onStart: () => {
+                // Start processing
+            },
+            onProgress: (job) => {
+                // Update progress if needed
+            },
+            onComplete: (job) => {
+                setShowExportModal(false);
+                setIsExportingPdf(false);
+                addToast('Exportação de produtos (PDF) concluída com sucesso!', 'success');
+            },
+            onError: (job) => {
+                setShowExportModal(false);
+                setIsExportingPdf(false);
+                addToast('Erro na exportação de produtos (PDF).', 'error');
+            },
+            onCancel: (job) => {
+                setShowExportModal(false);
+                setIsExportingPdf(false);
+                addToast('Exportação de produtos (PDF) cancelada.', 'warning');
+            }
+        });
         
         // Start monitoring the export job
-        BackgroundJobService.startExportJob(jobId, 'produtos (PDF)');
+        BackgroundJobService.startExportJob(jobId, 'produtos (PDF)', products.total);
         
         const url = new URL(route('admin.products.export', { format: 'pdf' }), window.location.origin);
         Object.keys(searchFilters).forEach(key => {
@@ -119,7 +179,6 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                 url.searchParams.append(key, searchFilters[key]);
             }
         });
-        window.location.href = url.toString();
         
         // Simulate progress updates
         let progress = 0;
@@ -130,8 +189,9 @@ export default function AdminProductsIndex({ auth, products, filters }) {
             if (progress >= 100) {
                 clearInterval(interval);
                 setTimeout(() => {
-                    BackgroundJobService.completeJob(jobId, true, 'Exportação de produtos (PDF) concluída com sucesso!');
-                    setIsExportingPdf(false);
+                    BackgroundJobService.completeJob(jobId, true, 'Exportação de produtos (PDF) concluída com sucesso!', url.toString());
+                    // Trigger download
+                    window.location.href = url.toString();
                 }, 500);
             }
         }, 300);
@@ -179,6 +239,19 @@ export default function AdminProductsIndex({ auth, products, filters }) {
         return ativo ? 'Ativo' : 'Inativo';
     };
 
+    const handleExportDownload = () => {
+        // The download is triggered automatically when the job completes
+        // This is just for the UI callback
+    };
+
+    const handleExportCancel = () => {
+        // In a real implementation, you would cancel the export job
+        // For now, we'll just close the modal
+        setShowExportModal(false);
+        setIsExportingExcel(false);
+        setIsExportingPdf(false);
+    };
+
     return (
         <AdminLayout
             user={auth.user}
@@ -186,6 +259,16 @@ export default function AdminProductsIndex({ auth, products, filters }) {
             breadcrumbs={breadcrumbs}
         >
             <Head title="Gerenciamento de Produtos" />
+
+            {/* Export Progress Modal */}
+            <ExportProgressModal
+                show={showExportModal}
+                jobId={currentExportJob}
+                type={exportType}
+                onClose={() => setShowExportModal(false)}
+                onDownload={handleExportDownload}
+                onCancel={handleExportCancel}
+            />
 
             <div className="py-4">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -284,9 +367,9 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                     </Link>
                                     <button
                                         onClick={exportToExcel}
-                                        disabled={isExportingExcel}
+                                        disabled={isExportingExcel || isExportingPdf}
                                         className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center ${
-                                            isExportingExcel
+                                            isExportingExcel || isExportingPdf
                                                 ? 'bg-green-400 cursor-not-allowed'
                                                 : 'bg-green-600 hover:bg-green-700 focus:ring-green-500 text-white'
                                         }`}
@@ -307,9 +390,9 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                     </button>
                                     <button
                                         onClick={exportToPDF}
-                                        disabled={isExportingPdf}
+                                        disabled={isExportingPdf || isExportingExcel}
                                         className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center ${
-                                            isExportingPdf
+                                            isExportingPdf || isExportingExcel
                                                 ? 'bg-red-400 cursor-not-allowed'
                                                 : 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white'
                                         }`}
