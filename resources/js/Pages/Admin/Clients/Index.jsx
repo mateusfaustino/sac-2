@@ -8,6 +8,7 @@ import BackgroundJobService from '@/Services/BackgroundJobService';
 import FilterIndicator from '@/Components/FilterIndicator';
 import ExportProgressModal from '@/Components/ExportProgressModal';
 import Tooltip from '@/Components/Tooltip';
+import CollapsibleFilterPanel from '@/Components/CollapsibleFilterPanel';
 import { getBusinessTerm, getTermTooltip, getClientTerm } from '@/Utils/userFriendlyTerms';
 
 export default function AdminClientsIndex({ auth, clients, filters }) {
@@ -234,8 +235,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             {/* Filter Section */}
-                            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                                <h3 className="text-lg font-medium mb-4">Filtros</h3>
+                            <CollapsibleFilterPanel title="Filtros">
                                 <form onSubmit={applyFilters} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -303,7 +303,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                         </div>
                                     </div>
                                 </form>
-                            </div>
+                            </CollapsibleFilterPanel>
 
                             {/* Filter Indicator */}
                             <FilterIndicator 

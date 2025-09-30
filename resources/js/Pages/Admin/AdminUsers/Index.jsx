@@ -1,14 +1,20 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
-import LoadingSpinner from '@/Components/LoadingSpinner';
 import FilterIndicator from '@/Components/FilterIndicator';
+import CollapsibleFilterPanel from '@/Components/CollapsibleFilterPanel';
 
 export default function AdminUsersIndex({ auth, adminUsers, filters }) {
     const [searchFilters, setSearchFilters] = useState({
         name: filters?.name || '',
-        email: filters?.email || ''
+        email: filters?.email || '',
+        search: filters?.search || ''
     });
+
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Usuários Admin', href: route('admin.admin-users.index') }
+    ];
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -32,7 +38,8 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
     const resetFilters = () => {
         setSearchFilters({
             name: '',
-            email: ''
+            email: '',
+            search: ''
         });
         window.location.href = route('admin.admin-users.index');
     };
@@ -50,11 +57,6 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
         window.location.href = url.toString();
     };
 
-    const breadcrumbs = [
-        { label: 'Painel', href: route('admin.dashboard') },
-        { label: 'Usuários Admin', href: route('admin.admin-users.index') }
-    ];
-
     return (
         <AdminLayout
             user={auth.user}
@@ -68,8 +70,7 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             {/* Filter Section */}
-                            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                                <h3 className="text-lg font-medium mb-4">Filtros</h3>
+                            <CollapsibleFilterPanel title="Filtros">
                                 <form onSubmit={applyFilters} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
@@ -122,7 +123,7 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
                                         </div>
                                     </div>
                                 </form>
-                            </div>
+                            </CollapsibleFilterPanel>
 
                             {/* Filter Indicator */}
                             <FilterIndicator 
