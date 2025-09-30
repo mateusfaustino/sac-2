@@ -2,6 +2,8 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import LoadingSpinner from '@/Components/LoadingSpinner';
 import { useToast } from '@/Components/ToastProvider';
+import useFormValidation from '@/Hooks/useFormValidation';
+import ValidationFeedback from '@/Components/ValidationFeedback';
 
 export default function AdminProductCreate({ auth }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -12,18 +14,53 @@ export default function AdminProductCreate({ auth }) {
     
     const { addToast } = useToast();
 
+    // Validation rules
+    const validationRules = {
+        codigo: [
+            (value) => !value ? 'Código é obrigatório' : '',
+            (value) => value && value.length < 2 ? 'Código deve ter pelo menos 2 caracteres' : ''
+        ],
+        descricao: [
+            (value) => !value ? 'Descrição é obrigatória' : '',
+            (value) => value && value.length < 3 ? 'Descrição deve ter pelo menos 3 caracteres' : ''
+        ]
+    };
+
+    // Initialize validation hook
+    const {
+        errors: validationErrors,
+        touched,
+        isValid,
+        handleBlur,
+        handleFieldChange,
+        getFieldValidationClass,
+        hasFieldError
+    } = useFormValidation(data, validationRules);
+
+    // Merge server errors with validation errors
+    const allErrors = { ...errors, ...validationErrors };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('admin.products.store'), {
-            onSuccess: () => {
-                reset();
-                addToast('Produto criado com sucesso!', 'success');
-            },
-            onError: (errors) => {
-                addToast('Erro ao criar o produto. Por favor, verifique os campos e tente novamente.', 'error');
-                console.error('Submit error:', errors);
-            }
+        
+        // Mark all fields as touched to show validation errors
+        Object.keys(validationRules).forEach(field => {
+            handleBlur(field);
         });
+        
+        // Validate before submitting
+        if (isValid) {
+            post(route('admin.products.store'), {
+                onSuccess: () => {
+                    reset();
+                    addToast('Produto criado com sucesso!', 'success');
+                },
+                onError: (errors) => {
+                    addToast('Erro ao criar o produto. Por favor, verifique os campos e tente novamente.', 'error');
+                    console.error('Submit error:', errors);
+                }
+            });
+        }
     };
 
     const breadcrumbs = [
@@ -56,27 +93,61 @@ export default function AdminProductCreate({ auth }) {
                             
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Código *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Código <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={data.codigo}
-                                        onChange={(e) => setData('codigo', e.target.value)}
-                                        className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        onChange={(e) => {
+                                            setData('codigo', e.target.value);
+                                            handleFieldChange('codigo', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('codigo')}
+                                        className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${getFieldValidationClass('codigo')}`}
                                         placeholder="Código do produto"
                                     />
-                                    {errors.codigo && <div className="text-red-500 text-sm mt-1">{errors.codigo}</div>}
+                                    {hasFieldError('codigo') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.codigo} 
+                                        />
+                                    )}
+                                    {!hasFieldError('codigo') && data.codigo && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Código válido" 
+                                        />
+                                    )}
                                 </div>
                                 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descrição *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Descrição <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={data.descricao}
-                                        onChange={(e) => setData('descricao', e.target.value)}
-                                        className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        onChange={(e) => {
+                                            setData('descricao', e.target.value);
+                                            handleFieldChange('descricao', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('descricao')}
+                                        className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 ${getFieldValidationClass('descricao')}`}
                                         placeholder="Descrição do produto"
                                     />
-                                    {errors.descricao && <div className="text-red-500 text-sm mt-1">{errors.descricao}</div>}
+                                    {hasFieldError('descricao') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.descricao} 
+                                        />
+                                    )}
+                                    {!hasFieldError('descricao') && data.descricao && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Descrição válida" 
+                                        />
+                                    )}
                                 </div>
                                 
                                 <div>
@@ -103,8 +174,12 @@ export default function AdminProductCreate({ auth }) {
                                     </Link>
                                     <button
                                         type="submit"
-                                        disabled={processing}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
+                                        disabled={processing || !isValid}
+                                        className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center ${
+                                            processing || !isValid
+                                                ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                                                : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white'
+                                        }`}
                                     >
                                         {processing ? (
                                             <>

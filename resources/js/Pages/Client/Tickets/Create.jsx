@@ -4,6 +4,8 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
+import useFormValidation from '@/Hooks/useFormValidation';
+import ValidationFeedback from '@/Components/ValidationFeedback';
 
 export default function CreateTicket({ auth, products }) {
     const { props } = usePage();
@@ -18,17 +20,61 @@ export default function CreateTicket({ auth, products }) {
         descricao: '',
     });
 
+    // Validation rules
+    const validationRules = {
+        product_id: [
+            (value) => !value ? 'Produto é obrigatório' : ''
+        ],
+        quantidade: [
+            (value) => !value ? 'Quantidade é obrigatória' : '',
+            (value) => value && (isNaN(value) || parseInt(value) <= 0) ? 'Quantidade deve ser um número positivo' : ''
+        ],
+        numero_contrato: [
+            (value) => !value ? 'Número do contrato é obrigatório' : '',
+            (value) => value && value.length < 3 ? 'Número do contrato deve ter pelo menos 3 caracteres' : ''
+        ],
+        numero_nf: [
+            (value) => !value ? 'Número da nota fiscal é obrigatório' : '',
+            (value) => value && value.length < 3 ? 'Número da nota fiscal deve ter pelo menos 3 caracteres' : ''
+        ],
+        numero_serie: [
+            (value) => value && value.length < 3 ? 'Número de série deve ter pelo menos 3 caracteres' : ''
+        ]
+    };
+
+    // Initialize validation hook
+    const {
+        errors: validationErrors,
+        touched,
+        isValid,
+        handleBlur,
+        handleFieldChange,
+        getFieldValidationClass,
+        hasFieldError
+    } = useFormValidation(data, validationRules);
+
+    // Merge server errors with validation errors
+    const allErrors = { ...errors, ...validationErrors };
+
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('client.tickets.store'), {
-            onError: (errors) => {
-                if (errors.client_id) {
-                    alert('Erro: Sua conta não está corretamente associada a um cliente. Por favor, entre em contato com o suporte.');
-                }
-            },
-            onFinish: () => reset(),
+        
+        // Mark all required fields as touched to show validation errors
+        Object.keys(validationRules).forEach(field => {
+            handleBlur(field);
         });
+        
+        // Validate before submitting
+        if (isValid) {
+            post(route('client.tickets.store'), {
+                onError: (errors) => {
+                    if (errors.client_id) {
+                        alert('Erro: Sua conta não está corretamente associada a um cliente. Por favor, entre em contato com o suporte.');
+                    }
+                },
+                onFinish: () => reset(),
+            });
+        }
     };
 
     return (
@@ -71,13 +117,17 @@ export default function CreateTicket({ auth, products }) {
 
                             <form onSubmit={submit} className="space-y-6">
                                 <div>
-                                    <InputLabel htmlFor="product_id" value="Produto" />
+                                    <InputLabel htmlFor="product_id" value="Produto *" />
                                     <select
                                         id="product_id"
                                         name="product_id"
                                         value={data.product_id}
-                                        onChange={(e) => setData('product_id', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        onChange={(e) => {
+                                            setData('product_id', e.target.value);
+                                            handleFieldChange('product_id', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('product_id')}
+                                        className={`mt-1 block w-full rounded-md border shadow-sm focus:outline-none focus:ring-2 ${getFieldValidationClass('product_id')}`}
                                     >
                                         <option value="">Selecione um produto</option>
                                         {products.map((product) => (
@@ -86,49 +136,105 @@ export default function CreateTicket({ auth, products }) {
                                             </option>
                                         ))}
                                     </select>
-                                    <InputError message={errors.product_id} className="mt-2" />
+                                    {hasFieldError('product_id') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.product_id} 
+                                        />
+                                    )}
+                                    {!hasFieldError('product_id') && data.product_id && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Produto selecionado" 
+                                        />
+                                    )}
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="quantidade" value="Quantidade" />
+                                    <InputLabel htmlFor="quantidade" value="Quantidade *" />
                                     <TextInput
                                         id="quantidade"
                                         type="number"
                                         name="quantidade"
                                         value={data.quantidade}
-                                        className="mt-1 block w-full"
+                                        className={`mt-1 block w-full rounded-md border shadow-sm focus:outline-none focus:ring-2 ${getFieldValidationClass('quantidade')}`}
                                         autoComplete="off"
-                                        onChange={(e) => setData('quantidade', e.target.value)}
+                                        onChange={(e) => {
+                                            setData('quantidade', e.target.value);
+                                            handleFieldChange('quantidade', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('quantidade')}
                                     />
-                                    <InputError message={errors.quantidade} className="mt-2" />
+                                    {hasFieldError('quantidade') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.quantidade} 
+                                        />
+                                    )}
+                                    {!hasFieldError('quantidade') && data.quantidade && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Quantidade válida" 
+                                        />
+                                    )}
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="numero_contrato" value="Número do Contrato" />
+                                    <InputLabel htmlFor="numero_contrato" value="Número do Contrato *" />
                                     <TextInput
                                         id="numero_contrato"
                                         type="text"
                                         name="numero_contrato"
                                         value={data.numero_contrato}
-                                        className="mt-1 block w-full"
+                                        className={`mt-1 block w-full rounded-md border shadow-sm focus:outline-none focus:ring-2 ${getFieldValidationClass('numero_contrato')}`}
                                         autoComplete="off"
-                                        onChange={(e) => setData('numero_contrato', e.target.value)}
+                                        onChange={(e) => {
+                                            setData('numero_contrato', e.target.value);
+                                            handleFieldChange('numero_contrato', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('numero_contrato')}
                                     />
-                                    <InputError message={errors.numero_contrato} className="mt-2" />
+                                    {hasFieldError('numero_contrato') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.numero_contrato} 
+                                        />
+                                    )}
+                                    {!hasFieldError('numero_contrato') && data.numero_contrato && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Número do contrato válido" 
+                                        />
+                                    )}
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="numero_nf" value="Número da Nota Fiscal" />
+                                    <InputLabel htmlFor="numero_nf" value="Número da Nota Fiscal *" />
                                     <TextInput
                                         id="numero_nf"
                                         type="text"
                                         name="numero_nf"
                                         value={data.numero_nf}
-                                        className="mt-1 block w-full"
+                                        className={`mt-1 block w-full rounded-md border shadow-sm focus:outline-none focus:ring-2 ${getFieldValidationClass('numero_nf')}`}
                                         autoComplete="off"
-                                        onChange={(e) => setData('numero_nf', e.target.value)}
+                                        onChange={(e) => {
+                                            setData('numero_nf', e.target.value);
+                                            handleFieldChange('numero_nf', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('numero_nf')}
                                     />
-                                    <InputError message={errors.numero_nf} className="mt-2" />
+                                    {hasFieldError('numero_nf') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.numero_nf} 
+                                        />
+                                    )}
+                                    {!hasFieldError('numero_nf') && data.numero_nf && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Número da nota fiscal válido" 
+                                        />
+                                    )}
                                 </div>
 
                                 <div>
@@ -138,11 +244,26 @@ export default function CreateTicket({ auth, products }) {
                                         type="text"
                                         name="numero_serie"
                                         value={data.numero_serie}
-                                        className="mt-1 block w-full"
+                                        className={`mt-1 block w-full rounded-md border shadow-sm focus:outline-none focus:ring-2 ${getFieldValidationClass('numero_serie')}`}
                                         autoComplete="off"
-                                        onChange={(e) => setData('numero_serie', e.target.value)}
+                                        onChange={(e) => {
+                                            setData('numero_serie', e.target.value);
+                                            handleFieldChange('numero_serie', e.target.value);
+                                        }}
+                                        onBlur={() => handleBlur('numero_serie')}
                                     />
-                                    <InputError message={errors.numero_serie} className="mt-2" />
+                                    {hasFieldError('numero_serie') && (
+                                        <ValidationFeedback 
+                                            type="error" 
+                                            message={allErrors.numero_serie} 
+                                        />
+                                    )}
+                                    {!hasFieldError('numero_serie') && data.numero_serie && (
+                                        <ValidationFeedback 
+                                            type="success" 
+                                            message="Número de série válido" 
+                                        />
+                                    )}
                                 </div>
 
                                 <div>
@@ -159,7 +280,7 @@ export default function CreateTicket({ auth, products }) {
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                    <PrimaryButton disabled={processing}>Criar Ticket</PrimaryButton>
+                                    <PrimaryButton disabled={processing || !isValid}>Criar Ticket</PrimaryButton>
                                 </div>
                             </form>
                         </div>
