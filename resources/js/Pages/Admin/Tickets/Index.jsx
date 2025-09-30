@@ -10,7 +10,7 @@ import LoadingIndicator from '@/Components/LoadingIndicator';
 import usePagination from '@/Hooks/usePagination';
 import ExportProgressModal from '@/Components/ExportProgressModal';
 import Tooltip from '@/Components/Tooltip';
-import { getUserFriendlyTicketTerm, getUserFriendlyStatus, getStatusDescription } from '@/Utils/userFriendlyTerms';
+import { getUserFriendlyTicketTerm, getUserFriendlyStatus, getStatusDescription, getStandardizedStatusClass } from '@/Utils/userFriendlyTerms';
 
 export default function AdminTicketsIndex({ auth, tickets, filters }) {
     const [searchFilters, setSearchFilters] = useState({
@@ -213,26 +213,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
     };
 
     const getStatusBadgeClass = (status) => {
-        switch (status) {
-            case 'aberto':
-                return 'bg-yellow-100 text-yellow-800';
-            case 'em_analise':
-                return 'bg-blue-100 text-blue-800';
-            case 'aprovado':
-                return 'bg-green-100 text-green-800';
-            case 'reprovado':
-                return 'bg-red-100 text-red-800';
-            case 'aguardando_envio':
-                return 'bg-indigo-100 text-indigo-800';
-            case 'em_transito':
-                return 'bg-purple-100 text-purple-800';
-            case 'recebido':
-                return 'bg-teal-100 text-teal-800';
-            case 'concluido':
-                return 'bg-gray-100 text-gray-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
+        return getStandardizedStatusClass(status);
     };
 
     const getStatusText = (status) => {
@@ -477,57 +458,57 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
 
                             {/* Tickets Table */}
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <table className="min-w-full">
+                                    <thead>
+                                        <tr className="border-b border-gray-200">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content={`Número da ${ticketTerm.toLowerCase()}`} position="top">
                                                     <span>{ticketTerm}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content="Situação atual da solicitação" position="top">
                                                     <span>Status</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody>
                                         {!loading && currentTickets.data && currentTickets.data.length > 0 ? (
                                             currentTickets.data.map((ticket) => (
-                                                <tr key={ticket.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <tr key={ticket.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
+                                                    <td className="py-4 text-sm font-medium text-gray-900">
                                                         {ticket.ticket_number}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {ticket.client?.razao_social || 'N/A'}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {ticket.items && ticket.items.length > 0 
                                                             ? ticket.items.map(item => item.product?.descricao).join(', ') 
                                                             : 'N/A'}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="py-4">
                                                         <Tooltip 
                                                             content={getStatusDescription(ticket.status)}
                                                             position="top"
                                                         >
-                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(ticket.status)}`}>
+                                                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(ticket.status)}`}>
                                                                 {getUserFriendlyStatus(ticket.status)}
                                                             </span>
                                                         </Tooltip>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {new Date(ticket.created_at).toLocaleDateString('pt-BR')}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <td className="py-4 text-sm font-medium">
                                                         <a 
                                                             href={route('admin.tickets.show', ticket.id)} 
-                                                            className="text-blue-600 hover:text-blue-900"
+                                                            className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
                                                         >
                                                             Visualizar
                                                         </a>
@@ -536,7 +517,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                             ))
                                         ) : !loading ? (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                                                <td colSpan="6" className="py-8 text-center text-sm text-gray-500">
                                                     Nenhum {ticketTerm.toLowerCase()} encontrado
                                                 </td>
                                             </tr>
@@ -547,7 +528,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
 
                             {/* Pagination */}
                             {!loading && currentTickets.data && currentTickets.data.length > 0 && (
-                                <div className="mt-6 flex items-center justify-between">
+                                <div className="mt-8 flex items-center justify-between">
                                     <div className="text-sm text-gray-700">
                                         Mostrando <span className="font-medium">{currentTickets.from}</span> a <span className="font-medium">{currentTickets.to}</span> de{' '}
                                         <span className="font-medium">{currentTickets.total}</span> resultados
@@ -559,7 +540,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
                                                 href={link.url || '#'}
                                                 onClick={(e) => handlePaginationClick(e, link.url)}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
-                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                                                     link.active
                                                         ? 'bg-blue-600 text-white'
                                                         : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'

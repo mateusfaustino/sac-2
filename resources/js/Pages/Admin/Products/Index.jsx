@@ -388,35 +388,35 @@ export default function AdminProductsIndex({ auth, products, filters }) {
 
                             {/* Products Table */}
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <table className="min-w-full">
+                                    <thead>
+                                        <tr className="border-b border-gray-200">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content="Código único do produto" position="top">
                                                     <span>{getProductTerm('codigo')}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content="Descrição ou nome do produto" position="top">
                                                     <span>{getProductTerm('descricao')}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody>
                                         {products.data && products.data.length > 0 ? (
                                             products.data.map((product) => (
-                                                <tr key={product.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
+                                                    <td className="py-4 text-sm font-medium text-gray-900">
                                                         {product.codigo}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {product.descricao}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                    <td className="py-4">
+                                                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                                             product.status === 'ativo' 
                                                                 ? 'bg-green-100 text-green-800' 
                                                                 : 'bg-red-100 text-red-800'
@@ -424,23 +424,23 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                                             {product.status === 'ativo' ? 'Ativo' : 'Inativo'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <td className="py-4 text-sm font-medium">
                                                         <Link 
                                                             href={route('admin.products.show', product.id)} 
-                                                            className="text-blue-600 hover:text-blue-900 mr-3"
+                                                            className="text-blue-600 hover:text-blue-900 mr-3 transition-colors duration-200"
                                                         >
                                                             Visualizar
                                                         </Link>
                                                         <Link 
                                                             href={route('admin.products.edit', product.id)} 
-                                                            className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                                            className="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors duration-200"
                                                         >
                                                             Editar
                                                         </Link>
                                                         <button
                                                             onClick={() => deleteProduct(product.id, product.descricao)}
                                                             disabled={deletingProductId === product.id}
-                                                            className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                                                            className="text-red-600 hover:text-red-900 disabled:opacity-50 transition-colors duration-200"
                                                         >
                                                             {deletingProductId === product.id ? 'Excluindo...' : 'Excluir'}
                                                         </button>
@@ -449,7 +449,7 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                                                <td colSpan="4" className="py-8 text-center text-sm text-gray-500">
                                                     Nenhum produto encontrado
                                                 </td>
                                             </tr>
@@ -460,7 +460,7 @@ export default function AdminProductsIndex({ auth, products, filters }) {
 
                             {/* Pagination */}
                             {products.data && products.data.length > 0 && (
-                                <div className="mt-6 flex items-center justify-between">
+                                <div className="mt-8 flex items-center justify-between">
                                     <div className="text-sm text-gray-700">
                                         Mostrando <span className="font-medium">{products.from}</span> a <span className="font-medium">{products.to}</span> de{' '}
                                         <span className="font-medium">{products.total}</span> resultados
@@ -471,7 +471,7 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                                 key={index}
                                                 href={link.url || '#'}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
-                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                                                     link.active
                                                         ? 'bg-blue-600 text-white'
                                                         : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'

@@ -40,6 +40,30 @@ export const getStatusDescription = (status) => {
     return descriptions[status] || 'Status da solicitação';
 };
 
+// Updated function to get standardized status colors (4 main categories)
+export const getStandardizedStatusClass = (status) => {
+    // Green for completed/approved states
+    if (['aprovado', 'concluido', 'recebido'].includes(status)) {
+        return 'bg-green-100 text-green-800';
+    }
+    // Blue for in-progress/analysis states
+    else if (['em_analise', 'aguardando_envio', 'em_transito'].includes(status)) {
+        return 'bg-blue-100 text-blue-800';
+    }
+    // Red for rejected/error states
+    else if (['reprovado', 'cancelado'].includes(status)) {
+        return 'bg-red-100 text-red-800';
+    }
+    // Neutral (gray) for pending/inactive states
+    else if (['aberto'].includes(status)) {
+        return 'bg-gray-100 text-gray-800';
+    }
+    // Default fallback
+    else {
+        return 'bg-gray-100 text-gray-800';
+    }
+};
+
 export const getBusinessTerm = (term) => {
     const businessTerms = {
         'ticket': 'Solicitação de Devolução',

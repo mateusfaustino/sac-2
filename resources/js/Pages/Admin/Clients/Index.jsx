@@ -367,52 +367,52 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
 
                             {/* Clients Table */}
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <table className="min-w-full">
+                                    <thead>
+                                        <tr className="border-b border-gray-200">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content={getTermTooltip('razao_social')} position="top">
                                                     <span>{getClientTerm('razao_social')}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content={getTermTooltip('cnpj')} position="top">
                                                     <span>{getClientTerm('cnpj')}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content={getTermTooltip('email_notificacao')} position="top">
                                                     <span>{getClientTerm('email_notificacao')}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                                 <Tooltip content="Quantidade de solicitações criadas pelo cliente" position="top">
                                                     <span>{getClientTerm('tickets_count')}</span>
                                                 </Tooltip>
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                            <th className="pb-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody>
                                         {clients.data && clients.data.length > 0 ? (
                                             clients.data.map((client) => (
-                                                <tr key={client.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <tr key={client.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
+                                                    <td className="py-4 text-sm font-medium text-gray-900">
                                                         {client.razao_social}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {client.cnpj}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {client.email_notificacao || 'N/A'}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td className="py-4 text-sm text-gray-900">
                                                         {client.tickets_count}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <td className="py-4 text-sm font-medium">
                                                         <Link 
                                                             href={route('admin.clients.show', client.id)} 
-                                                            className="text-blue-600 hover:text-blue-900"
+                                                            className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
                                                         >
                                                             Visualizar
                                                         </Link>
@@ -421,7 +421,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                                                <td colSpan="5" className="py-8 text-center text-sm text-gray-500">
                                                     Nenhum cliente encontrado
                                                 </td>
                                             </tr>
@@ -432,7 +432,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
 
                             {/* Pagination */}
                             {clients.data && clients.data.length > 0 && (
-                                <div className="mt-6 flex items-center justify-between">
+                                <div className="mt-8 flex items-center justify-between">
                                     <div className="text-sm text-gray-700">
                                         Mostrando <span className="font-medium">{clients.from}</span> a <span className="font-medium">{clients.to}</span> de{' '}
                                         <span className="font-medium">{clients.total}</span> resultados
@@ -443,7 +443,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
                                                 key={index}
                                                 href={link.url || '#'}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
-                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                                                     link.active
                                                         ? 'bg-blue-600 text-white'
                                                         : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
