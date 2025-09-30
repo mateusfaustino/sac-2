@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -35,10 +35,18 @@ export default function EditTicket({ auth, ticket, products }) {
         return statusLabels[status] || status;
     };
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Tickets', href: route('admin.tickets.index') },
+        { label: `Ticket #${ticket.ticket_number}`, href: route('admin.tickets.show', ticket.id) },
+        { label: 'Editar Ticket', href: route('admin.tickets.edit', ticket.id) }
+    ];
+
     return (
-        <AuthenticatedLayout
+        <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Editar Ticket</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Editar Ticket" />
 
@@ -199,6 +207,6 @@ export default function EditTicket({ auth, ticket, products }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

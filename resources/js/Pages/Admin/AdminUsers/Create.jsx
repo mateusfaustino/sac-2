@@ -27,10 +27,17 @@ export default function AdminUserCreate({ auth }) {
         });
     };
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Usuários Admin', href: route('admin.admin-users.index') },
+        { label: 'Adicionar Usuário Admin', href: route('admin.admin-users.create') }
+    ];
+
     return (
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Adicionar Usuário Admin</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Adicionar Usuário Admin" />
 

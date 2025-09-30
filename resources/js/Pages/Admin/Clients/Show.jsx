@@ -39,10 +39,17 @@ export default function AdminClientShow({ auth, client, tickets }) {
         return statusMap[status] || status;
     };
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Clientes', href: route('admin.clients.index') },
+        { label: client.razao_social, href: route('admin.clients.show', client.id) }
+    ];
+
     return (
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Detalhes do Cliente</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Detalhes do Cliente" />
 

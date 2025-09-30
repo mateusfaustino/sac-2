@@ -30,6 +30,11 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
         };
     }, [statusBar]);
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Tickets', href: route('admin.tickets.index') }
+    ];
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setSearchFilters(prev => ({
@@ -164,6 +169,7 @@ export default function AdminTicketsIndex({ auth, tickets, filters }) {
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gerenciamento de Tickets</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Gerenciamento de Tickets" />
 

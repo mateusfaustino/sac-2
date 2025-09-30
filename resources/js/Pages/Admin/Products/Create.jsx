@@ -26,10 +26,17 @@ export default function AdminProductCreate({ auth }) {
         });
     };
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Produtos', href: route('admin.products.index') },
+        { label: 'Adicionar Produto', href: route('admin.products.create') }
+    ];
+
     return (
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Adicionar Produto</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Adicionar Produto" />
 

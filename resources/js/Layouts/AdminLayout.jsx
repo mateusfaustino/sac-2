@@ -1,10 +1,11 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import ProgressBar from '@/Components/ProgressBar';
+import Breadcrumb from '@/Components/Breadcrumb';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function AdminLayout({ header, children }) {
+export default function AdminLayout({ header, children, breadcrumbs = [] }) {
     const user = usePage().props.auth.user;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -175,6 +176,11 @@ export default function AdminLayout({ header, children }) {
 
                 {/* Content */}
                 <main className="flex-1 overflow-y-auto p-4 bg-gray-100">
+                    {/* Breadcrumbs */}
+                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                        <Breadcrumb breadcrumbs={breadcrumbs} />
+                    </div>
+                    
                     {children}
                 </main>
             </div>

@@ -36,10 +36,16 @@ export default function AdminUsersIndex({ auth, adminUsers, filters }) {
         window.location.href = route('admin.admin-users.index');
     };
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Usuários Admin', href: route('admin.admin-users.index') }
+    ];
+
     return (
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gerenciamento de Usuários Admin</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Gerenciamento de Usuários Admin" />
 

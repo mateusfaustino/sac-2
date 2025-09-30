@@ -27,6 +27,11 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
         };
     }, [statusBar]);
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Clientes', href: route('admin.clients.index') }
+    ];
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setSearchFilters(prev => ({
@@ -121,6 +126,7 @@ export default function AdminClientsIndex({ auth, clients, filters }) {
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gerenciamento de Clientes</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Gerenciamento de Clientes" />
 

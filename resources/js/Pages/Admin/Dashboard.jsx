@@ -2,10 +2,15 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
 
 export default function AdminDashboard({ auth, stats }) {
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') }
+    ];
+
     return (
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Painel do Administrador</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Painel do Administrador" />
 

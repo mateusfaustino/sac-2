@@ -7,9 +7,11 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Ticket;
 use App\Models\Product;
 use App\Models\Client;
+use App\Models\TicketStatusHistory;
 use App\Services\TicketService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -139,7 +141,7 @@ class TicketController extends Controller
         }
 
         try {
-            $ticket = $this->ticketService->createTicket($request->all(), Auth::user());
+            $ticket = $this->ticketService->createTicket($request->all());
             return redirect()->route('client.tickets.show', $ticket->id)
                 ->with('success', 'Ticket criado com sucesso!');
         } catch (\Exception $e) {
@@ -160,7 +162,7 @@ class TicketController extends Controller
             return redirect()->route('client.dashboard');
         }
 
-        $ticket->load(['client', 'items.product', 'statusHistory.user', 'messages.user']);
+        $ticket->load(['client', 'items.product', 'statusHistory.changedBy', 'messages.user']);
 
         if (Auth::user()->role === 'admin') {
             return Inertia::render('Admin/Tickets/Show', [
@@ -203,7 +205,20 @@ class TicketController extends Controller
         }
 
         try {
-            $this->ticketService->updateTicket($ticket, $request->all());
+            // Update ticket status
+            $oldStatus = $ticket->status;
+            $ticket->status = $request->status;
+            $ticket->save();
+
+            // Create status history
+            TicketStatusHistory::create([
+                'ticket_id' => $ticket->id,
+                'status_from' => $oldStatus,
+                'status_to' => $request->status,
+                'changed_by' => Auth::id(),
+                'motivo' => $request->observacao,
+            ]);
+
             return redirect()->route('admin.tickets.show', $ticket->id)
                 ->with('success', 'Ticket atualizado com sucesso!');
         } catch (\Exception $e) {
@@ -225,7 +240,17 @@ class TicketController extends Controller
         }
 
         try {
-            $this->ticketService->deleteTicket($ticket);
+            DB::transaction(function () use ($ticket) {
+                // Delete related records first
+                $ticket->statusHistory()->delete();
+                $ticket->messages()->delete();
+                $ticket->items()->delete();
+                $ticket->attachments()->delete();
+                
+                // Delete the ticket
+                $ticket->delete();
+            });
+
             return redirect()->route('admin.tickets.index')
                 ->with('success', 'Ticket excluído com sucesso!');
         } catch (\Exception $e) {

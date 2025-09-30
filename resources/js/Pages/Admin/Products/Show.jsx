@@ -50,10 +50,17 @@ export default function AdminProductShow({ auth, product, ticketItems }) {
             : 'bg-red-100 text-red-800';
     };
 
+    const breadcrumbs = [
+        { label: 'Painel', href: route('admin.dashboard') },
+        { label: 'Produtos', href: route('admin.products.index') },
+        { label: product.descricao, href: route('admin.products.show', product.id) }
+    ];
+
     return (
         <AdminLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Detalhes do Produto</h2>}
+            breadcrumbs={breadcrumbs}
         >
             <Head title="Detalhes do Produto" />
 
