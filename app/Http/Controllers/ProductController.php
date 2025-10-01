@@ -42,6 +42,12 @@ class ProductController extends Controller
         
         $products = $query->latest()->paginate(10)->withQueryString();
         
+        // Transform the products to include status field
+        $products->getCollection()->transform(function ($product) {
+            $product->status = $product->ativo ? 'ativo' : 'inativo';
+            return $product;
+        });
+        
         // Pass filters to the view
         $filters = $request->only(['codigo', 'descricao', 'status']);
         
@@ -103,6 +109,9 @@ class ProductController extends Controller
         
         // Load product with related data
         $product->loadCount('ticketItems');
+        
+        // Add status field for consistency
+        $product->status = $product->ativo ? 'ativo' : 'inativo';
         
         // Get ticket items for this product
         $ticketItems = TicketItem::with(['ticket.client', 'ticket'])
@@ -181,6 +190,12 @@ class ProductController extends Controller
         
         $products = $query->latest()->get();
         
+        // Transform the products to include status field
+        $products->transform(function ($product) {
+            $product->status = $product->ativo ? 'ativo' : 'inativo';
+            return $product;
+        });
+        
         if ($format === 'excel') {
             return $this->exportToExcel($products);
         } elseif ($format === 'pdf') {
@@ -210,7 +225,7 @@ class ProductController extends Controller
         foreach ($products as $product) {
             $sheet->setCellValue('A' . $row, $product->codigo);
             $sheet->setCellValue('B' . $row, $product->descricao);
-            $sheet->setCellValue('C' . $row, $product->ativo ? 'Ativo' : 'Inativo');
+            $sheet->setCellValue('C' . $row, $product->status === 'ativo' ? 'Ativo' : 'Inativo');
             $sheet->setCellValue('D' . $row, $product->ticket_items_count);
             $sheet->setCellValue('E' . $row, $product->created_at->format('d/m/Y H:i:s'));
             
@@ -277,7 +292,7 @@ class ProductController extends Controller
             $html .= '<tr>
                 <td>' . htmlspecialchars($product->codigo) . '</td>
                 <td>' . htmlspecialchars($product->descricao) . '</td>
-                <td>' . ($product->ativo ? 'Ativo' : 'Inativo') . '</td>
+                <td>' . ($product->status === 'ativo' ? 'Ativo' : 'Inativo') . '</td>
                 <td>' . $product->ticket_items_count . '</td>
                 <td>' . $product->created_at->format('d/m/Y H:i:s') . '</td>
             </tr>';

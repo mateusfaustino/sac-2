@@ -431,12 +431,6 @@ export default function AdminProductsIndex({ auth, products, filters }) {
                                                         >
                                                             Visualizar
                                                         </Link>
-                                                        <Link 
-                                                            href={route('admin.products.edit', product.id)} 
-                                                            className="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors duration-200"
-                                                        >
-                                                            Editar
-                                                        </Link>
                                                         <button
                                                             onClick={() => deleteProduct(product.id, product.descricao)}
                                                             disabled={deletingProductId === product.id}
