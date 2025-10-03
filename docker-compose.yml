@@ -1,31 +1,19 @@
 version: "3"
 
 services:
-    # image project
     app:
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.apache
         restart: unless-stopped
         working_dir: /var/www/
         volumes:
             - ./:/var/www
         ports:
+            - "8000:80"
             - "5173:5173"
         depends_on:
             - redis
-        networks:
-            - laravel
-
-    # nginx
-    nginx:
-        image: nginx:alpine
-        restart: unless-stopped
-        ports:
-            - "8000:80"
-        volumes:
-            - ./:/var/www
-            - ./docker/nginx/:/etc/nginx/conf.d/
         networks:
             - laravel
 
