@@ -246,6 +246,27 @@ php artisan test
 - `routes` - Route definitions
 - `tests` - Test files
 
+## CI/CD Deployment
+
+The system includes a complete CI/CD pipeline with automated testing, building, and deployment.
+
+### Components
+
+1. **Docker Images**: Built and stored in GitHub Container Registry (GHCR)
+2. **GitHub Actions**: Automated pipeline for testing and deployment
+3. **Production Deployment**: Zero-downtime deployment with rollback capabilities
+4. **Health Checks**: Automated service health verification
+
+### Deployment Process
+
+1. **Build**: Docker images are built on every push
+2. **Test**: Automated tests run in isolated containers
+3. **Push**: Images are pushed to GHCR with version tags
+4. **Deploy**: Production deployment via SSH with health checks
+5. **Rollback**: Automatic rollback on deployment failure
+
+See [DEPLOYMENT-README.md](DEPLOYMENT-README.md) for detailed deployment instructions.
+
 ## Deployment
 
 For production deployment:

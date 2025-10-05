@@ -1,0 +1,49 @@
+name: "Deploy para VPS"
+on:
+ push:
+    branches:
+      - master
+
+jobs:
+  build_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Baixar código do repositório"
+        uses: actions/checkout@v4
+
+      - name: Copy files via SSH
+        uses: appleboy/scp-action@v1
+        with:
+          host: "72.60.140.160"
+          username: "root" 
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "/home/sac.com"
+      
+      - name: "Build da aplicação"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: "72.60.140.160"
+          username: "root"
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/sac.com
+            # Install PHP dependencies
+            composer install --no-dev --optimize-autoloader\n 
+
+            # Install Node.js dependencies
+            npm install
+
+            # Build frontend assets
+            npm run build
+
+            # Optimize Laravel application
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # Generate application key if needed
+            php artisan key:generate --ansi
+
+
