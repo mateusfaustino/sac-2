@@ -22,13 +22,22 @@ jobs:
           target: "/home/sac.com"
       
       - name: "Build da aplicação"
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          TERM: xterm
         with:
           host: "72.60.140.160"
           username: "root"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/sac.com
+            # Set TERM environment variable
+            export TERM=xterm
+            
+            # Create deployment directory
+            sudo mkdir -p /srv/sac
+            
+            # Navigate to deployment directory
+            cd /srv/sac
             # Install PHP dependencies
             composer install --no-dev --optimize-autoloader\n 
 
