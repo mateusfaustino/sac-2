@@ -1,29 +1,22 @@
-name: Deploy para VPS
+name: "Deploy para VPS"
 on:
-  push:
-    branches: [ master ]
+ push:
+    branches:
+      - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Escrever chave privada
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-          chmod 600 id_rsa
-
-      - name: Garantir destino existe
-        run: |
-          ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no root@${{ secrets.REMOTE_HOST }} \
-            "mkdir -p /home/sac.com/public_html"
-
-      - name: Rsync (absoluto, sem truques)
-        run: |
-          rsync -rltgoDzvO --delete \
-            -e "ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no" \
-            ./ root@${{ secrets.REMOTE_HOST }}:/home/sac.com/public_html/
-
-      
+      - name: Checkout do repositorio
+        uses: actions/checkout@v1
+      - name: Deploy para meu hosting
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          ARGS: "-rltgoDzvO --delete"
+          SOURCE: "."
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: root
+          REMOTE_PORT: 22
+          TARGET: "/home/sac.com/public_html/"
