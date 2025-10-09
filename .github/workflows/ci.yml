@@ -15,7 +15,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
-          username: root                     # idealmente, use o usuário do site no CyberPanel
+          username: admin                     # idealmente, use o usuário do site no CyberPanel
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
@@ -26,7 +26,7 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: root            # ideal: o usuário dono do site no CyberPanel
+          REMOTE_USER: admin            # ideal: o usuário dono do site no CyberPanel
           REMOTE_PORT: 22
           SOURCE: "."
           TARGET: "/home/sac.com/public_html/"
