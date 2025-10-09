@@ -10,26 +10,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # (Opcional, mas recomendado) Garanta que o diretório existe
-      - name: Garantir destino existe
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: admin                     # idealmente, use o usuário do site no CyberPanel
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            mkdir -p /home/sac.com/public_html
+      - name: Escrever chave privada
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+          chmod 600 id_rsa
 
-      - name: Rsync deploy
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: admin            # ideal: o usuário dono do site no CyberPanel
-          REMOTE_PORT: 22
-          SOURCE: "."
-          TARGET: "/home/sac.com/public_html/"
-          ARGS: "-rltgoDzvO --delete"
+      - name: Garantir destino existe
+        run: |
+          ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no root@${{ secrets.REMOTE_HOST }} \
+            "mkdir -p /home/sac.com/public_html"
+
+      - name: Rsync (absoluto, sem truques)
+        run: |
+          rsync -rltgoDzvO --delete \
+            -e "ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no" \
+            ./ root@${{ secrets.REMOTE_HOST }}:/home/sac.com/public_html/
 
       
