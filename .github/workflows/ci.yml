@@ -12,27 +12,18 @@ jobs:
 
       - name: Escrever chave privada
         run: |
-          umask 077
-          cat > id_rsa <<'EOF'
-${{ secrets.SSH_PRIVATE_KEY }}
-EOF
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
           chmod 600 id_rsa
 
-      - name: Garantir destino existe (e ver o HOME remoto)
+      - name: Garantir destino existe
         run: |
-          ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no root@${{ secrets.REMOTE_HOST }} <<'SH'
-          set -eux
-          echo "REMOTE HOME=$HOME"
-          mkdir -p /home/sac.com/public_html
-          ls -ld /home /home/sac.com /home/sac.com/public_html || true
-          SH
+          ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no root@${{ secrets.REMOTE_HOST }} \
+            "mkdir -p /home/sac.com/public_html"
 
-      - name: Deploy com rsync (caminho ABSOLUTO)
+      - name: Rsync (absoluto, sem truques)
         run: |
-          set -euxo pipefail
           rsync -rltgoDzvO --delete \
-            --exclude ".git" \
-            --exclude "node_modules" \
-            --exclude "vendor" \
             -e "ssh -i id_rsa -p 22 -o StrictHostKeyChecking=no" \
             ./ root@${{ secrets.REMOTE_HOST }}:/home/sac.com/public_html/
+
+      
