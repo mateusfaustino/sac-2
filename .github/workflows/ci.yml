@@ -22,12 +22,14 @@ jobs:
             mkdir -p /home/sac.com/public_html
 
       - name: Rsync deploy
-        uses: easingthemes/ssh-deploy@main
+        uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          remote-host: ${{ secrets.REMOTE_HOST }}
-          remote-user: root                  # troque para o dono do site se tiver
-          remote-port: 22
-          source: "."
-          target: "/home/sac.com/public_html/"
-          args: "-rltgoDzvO --delete"
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: root            # ideal: o usuário dono do site no CyberPanel
+          REMOTE_PORT: 22
+          SOURCE: "."
+          TARGET: "/home/sac.com/public_html/"
+          ARGS: "-rltgoDzvO --delete"
+
+      
